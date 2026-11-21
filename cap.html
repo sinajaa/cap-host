@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>verify</title>
+<style>
+  body { font-family: system-ui, sans-serif; background:#111; color:#eee; display:flex;
+         align-items:center; justify-content:center; height:100vh; margin:0; }
+  #box { text-align:center; }
+  #msg { font-size: 14px; opacity:.8; }
+  #token { word-break: break-all; font-size: 12px; max-width: 90vw; }
+</style>
+<script src="https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js"></script>
+</head>
+<body>
+<div id="box">
+  <div id="msg">loading captcha…</div>
+  <div id="token"></div>
+</div>
+<script>
+  var msg = document.getElementById('msg');
+  var tokenEl = document.getElementById('token');
+
+  function boot() {
+    if (!window.initAliyunCaptcha) { msg.textContent = 'sdk missing'; return; }
+    window.initAliyunCaptcha({
+      SceneId: '81tr55b5j',
+      mode: 'popup',
+      language: 'cn',
+      success: function (param) {
+        window.__captchaResult = param;
+        msg.textContent = 'solved';
+        tokenEl.textContent = param && param.captchaVerifyParam ? param.captchaVerifyParam : JSON.stringify(param);
+      },
+      fail: function () { msg.textContent = 'failed'; },
+      getInstance: function (instance) {
+        window.__captchaInstance = instance;
+        msg.textContent = 'ready';
+        try { instance.show(); } catch (e) { msg.textContent = 'show error: ' + e; }
+      },
+      onError: function (e) {
+        window.__captchaError = e;
+        msg.textContent = 'error: ' + (e && (e.msg || e.code) || 'unknown');
+      },
+      onClose: function () { msg.textContent = 'closed'; }
+    });
+  }
+
+  if (document.readyState === 'complete') boot();
+  else window.addEventListener('load', boot);
+</script>
+</body>
+</html>
